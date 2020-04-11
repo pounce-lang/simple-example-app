@@ -1,0 +1,41 @@
+html, body, .grid-container { height: 100%; margin: 0; }
+
+.grid-container * { 
+  border: 1px solid silver;
+  background-color: silver;
+  border-radius: 7px;
+  position: relative;
+  padding: 4px;
+  font-size: large;
+}
+
+.grid-container *:after { 
+ /* content:attr(class); */
+ position: absolute;
+ top: 0;
+ left: 0;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 0.4fr 1.4fr 1.5fr 0.5fr;
+  grid-template-rows: 0.4fr 1fr 2.4fr 0.5fr;
+  gap: 4px 4px;
+  grid-template-areas: "header header header header" "leftnav stack program rightnav" "running_stack running_stack running_program running_program" "footer footer footer footer";
+}
+
+.header { grid-area: header; font-size: 32px; }
+
+.leftnav { grid-area: leftnav; }
+
+.stack { grid-area: stack; text-align: right; }
+
+.program { grid-area: program; }
+
+.rightnav { grid-area: rightnav; }
+
+.running_stack { grid-area: running_stack; text-align: right; }
+
+.running_program { grid-area: running_program; }
+
+.footer { grid-area: footer; }
