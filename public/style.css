@@ -1,4 +1,12 @@
 html, body, .grid-container { height: 100%; margin: 0; }
+/* div { min-height: 20px; } */
+textarea {
+  background-color: ghostwhite;
+  width: -webkit-fill-available;
+  height: 100%;
+  padding: 7px 10px 1px 8px;
+  margin: -5px;
+}
 
 .grid-container * { 
   border: 1px solid silver;
@@ -30,7 +38,7 @@ html, body, .grid-container { height: 100%; margin: 0; }
 
 .stack { grid-area: stack; text-align: right; }
 
-.program { grid-area: program; }
+.program { grid-area: program; text-align: left;}
 
 .rightnav { grid-area: rightnav; }
 
