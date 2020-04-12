@@ -1,4 +1,4 @@
-html, body, .grid-container { height: 100%; margin: 0; }
+html, body, .grid-container { height: 100%; margin: 0; font-family: monospace; }
 /* div { min-height: 20px; } */
 textarea {
   background-color: ghostwhite;
@@ -15,6 +15,7 @@ textarea {
   position: relative;
   padding: 4px;
   font-size: large;
+  padding: 4px 14px 4px 4px;
 }
 
 .grid-container *:after { 
@@ -42,8 +43,14 @@ textarea {
 
 .rightnav { grid-area: rightnav; }
 
-.running_stack { grid-area: running_stack; text-align: right; }
+.running_stack { grid-area: running_stack; text-align: right; 
+  border-radius: 7px 0 0 0;
+  width: 20000%;
+  left: -19900%;
+}
 
-.running_program { grid-area: running_program; }
+.running_program { grid-area: running_program; 
+  width: 1600%
+}
 
 .footer { grid-area: footer; }

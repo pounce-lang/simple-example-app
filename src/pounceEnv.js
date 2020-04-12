@@ -1,4 +1,4 @@
-import { purr, pinna } from '@pounce-lang/core';
+import { purr, parse, unParse } from '@pounce-lang/core';
 
 const stackEle = document.querySelector('#stack');
 const programEle = document.querySelector('#program');
@@ -12,7 +12,7 @@ export default function repl(pl) {
         programEle.firstChild.remove();
     }
 
-    interp = purr(pinna(pl), undefined, { debug: true });
+    interp = purr(parse(pl), undefined, { debug: true });
     repl_aux();
 };
 
@@ -20,7 +20,7 @@ const repl_aux = () => {
     let result = interp.next();
 
     let newStEle = document.createElement('div');
-    newStEle.innerText = result.value[0].length ? unParse(result.value[0]) + " |" : "|";
+    newStEle.innerText = result.value[0].length ? unParse(result.value[0]) : "/empty stack/";
     stackEle.appendChild(newStEle);
 
     let newPrEle = document.createElement('div');
@@ -31,46 +31,4 @@ const repl_aux = () => {
         setTimeout(repl_aux, 0);
     }
 };
-
-function unParse(pl) {
-    let ps = '';
-    let spacer = '';
-    for (let i in pl) {
-        if (pl[i] && typeof pl[i] == "object") {
-            if (Array.isArray(pl[i])) {
-                ps += spacer + '[' + unParse(pl[i]) + ']';
-            }
-            else {
-                ps += spacer + '{' + unParseKeyValuePair(pl[i]) + '}';
-            }
-        }
-        else {
-            ps += spacer + pl[i];
-        }
-        spacer = ' ';
-    }
-    return ps;
-}
-
-function unParseKeyValuePair(pl) {
-    let ps = '';
-    let spacer = '';
-    for (let i in pl) {
-        if (pl.hasOwnProperty(i)) {
-            if (pl[i] && typeof pl[i] == "object") {
-                if (Array.isArray(pl[i])) {
-                    ps += spacer + i + ':[' + unParse(pl[i]) + ']';
-                }
-                else {
-                    ps += spacer + i + ':{' + unParseKeyValuePair(pl[i]) + '}';
-                }
-            }
-            else {
-                ps += spacer + i + ':' + pl[i];
-            }
-            spacer = ' ';
-        }
-    }
-    return ps;
-}
 
