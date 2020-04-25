@@ -5,6 +5,22 @@ import repl from './pounceEnv.js';
 console.log('if you have sourcemaps enabled in your devtools, click on main.js:5 -->');
 
 // Add event listener for programmer input
-const el = document.getElementById("user-pl");
-el.addEventListener("keyup", (e) => repl(e.target.value), false);
-repl("0 1 [dup2 +] 5 times");
+const myPounceProgramEle = document.getElementById("user-pl");
+const myDebugModeCkbxEle = document.getElementById("debug");
+
+let pounceProgram = "0 1 [dup2 +] 5 times";
+let debugMode = myDebugModeCkbxEle.checked;
+
+myPounceProgramEle.addEventListener("keyup", (e) => {
+    if (e.target.value !== pounceProgram) {
+        pounceProgram = e.target.value;
+        repl(pounceProgram, debugMode);
+    }
+}, false);
+
+myDebugModeCkbxEle.addEventListener('change', () => {
+    debugMode = myDebugModeCkbxEle.checked;
+})
+
+myPounceProgramEle.innerText = pounceProgram;
+repl(pounceProgram, debugMode);

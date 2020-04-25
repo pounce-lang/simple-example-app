@@ -4,19 +4,16 @@ const stackEle = document.querySelector('#stack');
 const programEle = document.querySelector('#program');
 let interp;
 
-export default function repl(pl) {
-    while (stackEle.firstChild) {
-        stackEle.firstChild.remove();
-    }
-    while (programEle.firstChild) {
-        programEle.firstChild.remove();
-    }
+// create an interpreter to run the Pounce program
+export default function repl(pounceProgram, debug = true) {
+    cleanStart(stackEle);
+    cleanStart(programEle);
 
-    interp = purr(parse(pl), undefined, { debug: true });
-    repl_aux();
+    interp = purr(parse(pounceProgram), undefined, { debug });
+    window.requestAnimationFrame(step);
 };
 
-const repl_aux = () => {
+const step = () => {
     let result = interp.next();
 
     let newStEle = document.createElement('div');
@@ -28,7 +25,12 @@ const repl_aux = () => {
     programEle.appendChild(newPrEle);
 
     if (result.value[2]) {
-        setTimeout(repl_aux, 0);
+        window.requestAnimationFrame(step);
     }
 };
 
+const cleanStart = domEle => {
+    while (domEle.firstChild) {
+        domEle.firstChild.remove();
+    }
+}

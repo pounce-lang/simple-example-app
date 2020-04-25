@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- grid.layoutit.com?id=lzZjBNn -->
+
 <head>
     <title>Simple Example of Pounce in the Browser</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
     <link href="style.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="grid-container">
         <div class="header">Example Pounce App</div>
         <div class="leftnav"></div>
-        <div class="stack"></div>
+        <div class="stack">
+            <label>
+                <input type="checkbox" id="debug" name="debug" />
+                <span aria-label="debug">debug</span>
+            </label>
+        </div>
         <div class="program"><textarea id="user-pl"></textarea></div>
         <div class="rightnav"></div>
         <div id="stack" class="running_stack"></div>
@@ -20,4 +27,5 @@
     </div>
 </body>
 <script src="bundle.js"></script>
+
 </html>
