@@ -1,11 +1,18 @@
 html, body, .grid-container { height: 100%; margin: 0; font-family: monospace; }
 /* div { min-height: 20px; } */
 textarea {
-  background-color: ghostwhite;
+  /* background-color: ghostwhite; */
   width: -webkit-fill-available;
-  height: 100%;
-  padding: 7px 10px 1px 8px;
-  margin: -5px;
+  height: 92%;
+  padding: 12px 5px 0 8px !important;
+}
+textarea:focus {
+  border-radius: 7px;
+  box-shadow: 0px 0px 0px 2px rgba(0, 150, 255, 1);
+
+  outline-color: transparent;
+  outline-width: 2px;
+  outline-style: dotted;
 }
 
 .grid-container * { 
@@ -13,7 +20,7 @@ textarea {
   background-color: silver;
   border-radius: 7px;
   position: relative;
-  padding: 4px;
+  padding: 1px;
   font-size: large;
   padding: 4px 14px 4px 4px;
 }
@@ -37,9 +44,9 @@ textarea {
 
 .leftnav { grid-area: leftnav; }
 
-.stack { grid-area: stack; text-align: right; }
+.stack { grid-area: stack; text-align: right;}
 
-.program { grid-area: program; text-align: left;}
+.program { grid-area: program; text-align: left; margin: 0; padding: 0;}
 
 .rightnav { grid-area: rightnav; }
 

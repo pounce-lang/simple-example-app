@@ -20,6 +20,7 @@ myPounceProgramEle.addEventListener("keyup", (e) => {
 
 myDebugModeCkbxEle.addEventListener('change', () => {
     debugMode = myDebugModeCkbxEle.checked;
+    repl(pounceProgram, debugMode);
 })
 
 myPounceProgramEle.innerText = pounceProgram;
