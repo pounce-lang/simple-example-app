@@ -8,7 +8,10 @@ console.log('if you have sourcemaps enabled in your devtools, click on main.js:5
 const myPounceProgramEle = document.getElementById("user-pl");
 const myDebugModeCkbxEle = document.getElementById("debug");
 
-let pounceProgram = "0 1 [dup2 +] 5 times";
+// 0 1 [dup2 +] 5 times
+// [dup 1 - dup 0 > [[*] dip fac] [drop drop] ifte] [fac] def 5 [1 swap] apply fac 
+// 5 [1 swap] [dup 1 -] [dup 0 >] [[*] dip] [drop drop] linrec
+let pounceProgram = "5 [1 swap] [dup 1 -] [dup 0 >] [[*] dip] [drop drop] linrec";
 let debugMode = myDebugModeCkbxEle.checked;
 
 myPounceProgramEle.addEventListener("keyup", (e) => {
