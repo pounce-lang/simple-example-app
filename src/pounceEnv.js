@@ -15,6 +15,9 @@ export default function repl(pounceProgram, debug = true) {
 
 const step = () => {
     let result = interp.next();
+    if (!result || !result.value) {
+        return;
+    }
 
     let newStEle = document.createElement('div');
     newStEle.innerText = result.value.stack.length ? unParse(result.value.stack) : "/empty stack/";

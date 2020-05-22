@@ -14,13 +14,29 @@
         <div class="header">Example Pounce App</div>
         <div class="leftnav"></div>
         <div class="stack">
+            <select id="example">
+                    <option value='"Pounce" "ready to" swap dup dup'>Select an example</option>
+                    <option value="5 3 + 2 * 4 / 1 -">Math, postfix notation</option>
+                    <option value="'the inverse of' 3 2 dup2 [/] dip2 swap / 'is' swap">Stack shuffeling</option>
+                    <option value=" 22 add-one     [1 +] [add-one] def">Word definition (add-one) </option>
+                    <option value="[dup 1 - dup 0 > [[*] dip fac] [drop drop] if-else] [fac] def 1 5 fac">factorial, by word
+                    def</option>
+                <option value="5 [dup 0 ==] [1 +] [dup 1 -] [*] linrec">factorial, by linrec</option>
+                <option value="0 1 [dup2 +] 16 times">Fibonachi Numbers</option>
+                <option
+                    value="[0] [size 23 >] [] [uncons swap 0 = [1 [] cons cons] [0 1 [] cons cons cons] if-else concat] [] linrec">
+                    Fibonachi sequence</option>
+                <option value="9 2 8 [a b c] [a b * c - b /] apply-with">Named stack positions</option>
+                <option value="2 3 4 [slope y-intercept x] [slope x * y-intercept +] apply-with">y-intercept </option>
+                <option value="[6 3 8 4 5 7 2 9 1] [size 1 <=] [] [uncons split<] [concat] binrec">Quick sort, using binrec</option>
+            </select>
             <label>
                 <input type="checkbox" id="debug" name="debug" />
                 <span aria-label="debug">debug</span>
             </label>
         </div>
         <div class="program">
-            <textarea id="user-pl" spellcheck="false" ></textarea>
+            <textarea id="user-pl" spellcheck="false"></textarea>
         </div>
         <div class="rightnav"></div>
         <div id="stack" class="running_stack"></div>
