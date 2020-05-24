@@ -8,8 +8,7 @@ let interp;
 export default function repl(pounceProgram, debug = true) {
     cleanStart(stackEle);
     cleanStart(programEle);
-
-    interp = interpreter(parse(pounceProgram), undefined, { debug });
+    interp = interpreter(pounceProgram, { debug });
     window.requestAnimationFrame(step);
 };
 
