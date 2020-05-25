@@ -10,7 +10,7 @@ const exampleSelectEle = document.getElementById("example");
 const myLogLevelSelectEle = document.getElementById("logLevel");
 
 let pounceProgram = '"Pounce" "ready to" swap dup dup';
-let logLevel = myLogLevelSelectEle.checked;
+let logLevel = 0;
 
 myPounceProgramEle.addEventListener("keyup", (e) => {
     if (e.target.value !== pounceProgram) {
@@ -20,7 +20,7 @@ myPounceProgramEle.addEventListener("keyup", (e) => {
 }, false);
 
 myLogLevelSelectEle.addEventListener('change', (e) => {
-    logLevel = e.target.value;
+    logLevel = parseInt(e.target.value, 10);
     repl(pounceProgram, logLevel);
 });
 

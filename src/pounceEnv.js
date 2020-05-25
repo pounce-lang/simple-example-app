@@ -6,7 +6,6 @@ let interp;
 
 // create an interpreter to run the Pounce program
 export default function repl(pounceProgram, logLevel = 0) {
-    console.log('*** logLevel ***', logLevel);
     cleanStart(stackEle);
     cleanStart(programEle);
     interp = interpreter(pounceProgram, { logLevel });

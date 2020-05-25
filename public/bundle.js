@@ -802,6 +802,80 @@
         */
        var head = /*#__PURE__*/nth(0);
 
+       function _filter(fn, list) {
+         var idx = 0;
+         var len = list.length;
+         var result = [];
+
+         while (idx < len) {
+           if (fn(list[idx])) {
+             result[result.length] = list[idx];
+           }
+           idx += 1;
+         }
+         return result;
+       }
+
+       function _isObject(x) {
+         return Object.prototype.toString.call(x) === '[object Object]';
+       }
+
+       var XFilter = /*#__PURE__*/function () {
+         function XFilter(f, xf) {
+           this.xf = xf;
+           this.f = f;
+         }
+         XFilter.prototype['@@transducer/init'] = _xfBase.init;
+         XFilter.prototype['@@transducer/result'] = _xfBase.result;
+         XFilter.prototype['@@transducer/step'] = function (result, input) {
+           return this.f(input) ? this.xf['@@transducer/step'](result, input) : result;
+         };
+
+         return XFilter;
+       }();
+
+       var _xfilter = /*#__PURE__*/_curry2(function _xfilter(f, xf) {
+         return new XFilter(f, xf);
+       });
+
+       /**
+        * Takes a predicate and a `Filterable`, and returns a new filterable of the
+        * same type containing the members of the given filterable which satisfy the
+        * given predicate. Filterable objects include plain objects or any object
+        * that has a filter method such as `Array`.
+        *
+        * Dispatches to the `filter` method of the second argument, if present.
+        *
+        * Acts as a transducer if a transformer is given in list position.
+        *
+        * @func
+        * @memberOf R
+        * @since v0.1.0
+        * @category List
+        * @sig Filterable f => (a -> Boolean) -> f a -> f a
+        * @param {Function} pred
+        * @param {Array} filterable
+        * @return {Array} Filterable
+        * @see R.reject, R.transduce, R.addIndex
+        * @example
+        *
+        *      const isEven = n => n % 2 === 0;
+        *
+        *      R.filter(isEven, [1, 2, 3, 4]); //=> [2, 4]
+        *
+        *      R.filter(isEven, {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, d: 4}
+        */
+       var filter = /*#__PURE__*/_curry2( /*#__PURE__*/_dispatchable(['filter'], _xfilter, function (pred, filterable) {
+         return _isObject(filterable) ? _reduce(function (acc, key) {
+           if (pred(filterable[key])) {
+             acc[key] = filterable[key];
+           }
+           return acc;
+         }, {}, keys(filterable)) :
+         // else
+         _filter(pred, filterable);
+       }));
+
        /**
         * Returns the second argument if it is not `null`, `undefined` or `NaN`;
         * otherwise the first argument is returned.
@@ -5547,9 +5621,12 @@
        };
 
        var parse$1 = parser;
+       var debugLevel = function (ics, logLevel) { return (ics.length <= logLevel); };
+       // user debug sessions do not need to see the housekeeping words (e.g. popInternalCallStack) 
+       var debugCleanPL = function (pl) { return filter(function (w) { return (w !== "popInternalCallStack"); }, pl); };
        // purr
        function interpreter(pl_in, opt) {
-           var wd_in, internalCallStack, debugLevel, _a, pl, wd, s, _b, w, maxCycles, cycles, wds, _d, plist, _f;
+           var wd_in, internalCallStack, _a, pl, wd, s, _b, w, maxCycles, cycles, wds, _d, plist, _f;
            var _g, _h;
            if (opt === void 0) { opt = { logLevel: 0, yieldOnId: false }; }
            var _j;
@@ -5558,7 +5635,6 @@
                    case 0:
                        wd_in = opt.wd ? opt.wd : coreWords;
                        internalCallStack = [];
-                       debugLevel = function () { return (internalCallStack.length <= opt.logLevel); };
                        _a = is(Array, pl_in) ? [toPLOrNull(pl_in), wd_in] : preProcessDefs(is(String, pl_in) ? parse$1(pl_in.toString()) : pl_in, wd_in), pl = _a[0], wd = _a[1];
                        s = [];
                        if (!((_j = opt) === null || _j === void 0 ? void 0 : _j.logLevel)) return [3 /*break*/, 2];
@@ -5579,8 +5655,8 @@
                        wds = is(String, w) ? wd[w] : null;
                        if (!wds) return [3 /*break*/, 10];
                        if (!(opt.logLevel && !opt.yieldOnId)) return [3 /*break*/, 8];
-                       if (!(debugLevel())) return [3 /*break*/, 6];
-                       return [4 /*yield*/, { stack: s, prog: [w].concat(pl), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
+                       if (!debugLevel(internalCallStack, opt.logLevel)) return [3 /*break*/, 6];
+                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
                    case 5:
                        _d = _k.sent();
                        return [3 /*break*/, 7];
@@ -5602,7 +5678,7 @@
                            else {
                                plist = toPLOrNull(wds.def);
                                if (plist) {
-                                   internalCallStack.push(w);
+                                   internalCallStack.push(toStringOrNull(w));
                                    pl = __spreadArrays(plist, ["popInternalCallStack"], pl);
                                }
                            }
@@ -5617,8 +5693,8 @@
                            s.push(w);
                        }
                        if (!(opt.logLevel && opt.yieldOnId)) return [3 /*break*/, 14];
-                       if (!(debugLevel())) return [3 /*break*/, 12];
-                       return [4 /*yield*/, { stack: s, prog: [w].concat(pl), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
+                       if (!(debugLevel(internalCallStack, opt.logLevel))) return [3 /*break*/, 12];
+                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
                    case 11:
                        _f = _k.sent();
                        return [3 /*break*/, 13];
@@ -5654,7 +5730,6 @@
 
        // create an interpreter to run the Pounce program
        function repl(pounceProgram, logLevel = 0) {
-           console.log('*** logLevel ***', logLevel);
            cleanStart(stackEle);
            cleanStart(programEle);
            interp = interpreter$1(pounceProgram, { logLevel });
@@ -5695,7 +5770,7 @@
        const myLogLevelSelectEle = document.getElementById("logLevel");
 
        let pounceProgram = '"Pounce" "ready to" swap dup dup';
-       let logLevel = myLogLevelSelectEle.checked;
+       let logLevel = 0;
 
        myPounceProgramEle.addEventListener("keyup", (e) => {
            if (e.target.value !== pounceProgram) {
@@ -5705,7 +5780,7 @@
        }, false);
 
        myLogLevelSelectEle.addEventListener('change', (e) => {
-           logLevel = e.target.value;
+           logLevel = parseInt(e.target.value, 10);
            repl(pounceProgram, logLevel);
        });
 
