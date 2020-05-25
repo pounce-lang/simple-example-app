@@ -7,30 +7,30 @@ console.log('if you have sourcemaps enabled in your devtools, click on main.js:5
 // Add event listener for programmer input
 const myPounceProgramEle = document.getElementById("user-pl");
 const exampleSelectEle = document.getElementById("example");
-const myDebugModeCkbxEle = document.getElementById("debug");
+const myLogLevelSelectEle = document.getElementById("logLevel");
 
 let pounceProgram = '"Pounce" "ready to" swap dup dup';
-let debugMode = myDebugModeCkbxEle.checked;
+let logLevel = myLogLevelSelectEle.checked;
 
 myPounceProgramEle.addEventListener("keyup", (e) => {
     if (e.target.value !== pounceProgram) {
         pounceProgram = e.target.value;
-        repl(pounceProgram, debugMode);
+        repl(pounceProgram, logLevel);
     }
 }, false);
 
-myDebugModeCkbxEle.addEventListener('change', () => {
-    debugMode = myDebugModeCkbxEle.checked;
-    repl(pounceProgram, debugMode);
+myLogLevelSelectEle.addEventListener('change', (e) => {
+    logLevel = e.target.value;
+    repl(pounceProgram, logLevel);
 });
 
 exampleSelectEle.addEventListener('change', (e) => {
     pounceProgram = e.target.value;
     myPounceProgramEle.innerText = pounceProgram;
     myPounceProgramEle.value = pounceProgram;
-    repl(pounceProgram, debugMode);
+    repl(pounceProgram, logLevel);
 });
 
 
 myPounceProgramEle.innerText = pounceProgram;
-repl(pounceProgram, debugMode);
+repl(pounceProgram, logLevel);

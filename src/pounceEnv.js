@@ -5,10 +5,11 @@ const programEle = document.querySelector('#program');
 let interp;
 
 // create an interpreter to run the Pounce program
-export default function repl(pounceProgram, debug = true) {
+export default function repl(pounceProgram, logLevel = 0) {
+    console.log('*** logLevel ***', logLevel);
     cleanStart(stackEle);
     cleanStart(programEle);
-    interp = interpreter(pounceProgram, { debug });
+    interp = interpreter(pounceProgram, { logLevel });
     window.requestAnimationFrame(step);
 };
 

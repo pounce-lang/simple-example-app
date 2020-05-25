@@ -48,8 +48,14 @@
 
             </select>
             <label>
-                <input type="checkbox" id="debug" name="debug" />
-                <span aria-label="debug">debug</span>
+                <select id="logLevel">
+                    <option value="0">run to end</option>
+                    <option value="1">debug one level deep</option>
+                    <option value="2">debug two levels deep</option>
+                    <option value="3">debug three levels deep</option>
+                    <option value="100">debug all</option>
+                </select>
+                <span aria-label="logLevel">logLevel</span>
             </label>
         </div>
         <div class="program">
