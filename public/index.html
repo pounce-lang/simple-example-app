@@ -37,13 +37,13 @@
 [size 1 <=] [] [uncons split<] [concat] binrec">Quick sort, using
                     binrec</option>
 
-                <option value="210 2 [] 
-[[p n fs] [p n fs p 1 <=] apply-with]
+                <option value="[2 = [1 +] [dup 2 + 3 % 0 == [4 +] [2 +] if-else] if-else] [prime-inc] def
+[2 [] [[p n fs] [p n fs p 1 <=] apply-with]
 [[p n fs] [fs] apply-with]
-[[p n fs] 
-[p n fs p n % 0 ==] apply-with 
-[[p n fs] [p n / n n fs cons] apply-with] [[p n fs] [p n 1 + fs] apply-with] if-else]
-[] linrec
+[[p n fs] [p n fs p n % 0 ==] apply-with 
+[[p n fs] [p n / n n fs cons] apply-with] [[p n fs] [p n prime-inc fs] apply-with] if-else]
+[] linrec] [prime-factors] def
+210 prime-factors
 ">prime factors</option>
 
             </select>
