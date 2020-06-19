@@ -45,8 +45,10 @@
 [] linrec] [prime-factors] def
 210 prime-factors
 ">prime factors</option>
-<option value="[-1 0 1 99] [1 +] map">map</option>
-<option value="8 [-1 0 1 99] [[dup] dip +] map">map may use what is below on the stack</option>
+<option value="[-1 0 1 98] [1 +] map">map</option>
+<option value="8 [-1 0 1 89] [[dup] dip +] map">map may use what is below on the stack</option>
+<option value="[-1 0 1 98] [2 % 0 ==] filter">filter</option>
+<option value="[-1 0 1 98] 0 [+] reduce">reduce</option>
 
             </select>
             <select id="logLevel"  class="input-hilight">

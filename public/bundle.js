@@ -1841,15 +1841,11 @@
            Rule.highestId = 0;
 
            Rule.prototype.toString = function(withCursorAt) {
-               function stringifySymbolSequence (e) {
-                   return e.literal ? JSON.stringify(e.literal) :
-                          e.type ? '%' + e.type : e.toString();
-               }
                var symbolSequence = (typeof withCursorAt === "undefined")
-                                    ? this.symbols.map(stringifySymbolSequence).join(' ')
-                                    : (   this.symbols.slice(0, withCursorAt).map(stringifySymbolSequence).join(' ')
+                                    ? this.symbols.map(getSymbolShortDisplay).join(' ')
+                                    : (   this.symbols.slice(0, withCursorAt).map(getSymbolShortDisplay).join(' ')
                                         + " ● "
-                                        + this.symbols.slice(withCursorAt).map(stringifySymbolSequence).join(' ')     );
+                                        + this.symbols.slice(withCursorAt).map(getSymbolShortDisplay).join(' ')     );
                return this.name + " → " + symbolSequence;
            };
 
@@ -2216,18 +2212,7 @@
            };
 
            Parser.prototype.getSymbolDisplay = function(symbol) {
-               var type = typeof symbol;
-               if (type === "string") {
-                   return symbol;
-               } else if (type === "object" && symbol.literal) {
-                   return JSON.stringify(symbol.literal);
-               } else if (type === "object" && symbol instanceof RegExp) {
-                   return 'character matching ' + symbol;
-               } else if (type === "object" && symbol.type) {
-                   return symbol.type + ' token';
-               } else {
-                   throw new Error('Unknown symbol type: ' + symbol);
-               }
+               return getSymbolLongDisplay(symbol);
            };
 
            /*
@@ -2302,6 +2287,44 @@
                });
                return considerations.map(function(c) {return c.data; });
            };
+
+           function getSymbolLongDisplay(symbol) {
+               var type = typeof symbol;
+               if (type === "string") {
+                   return symbol;
+               } else if (type === "object") {
+                   if (symbol.literal) {
+                       return JSON.stringify(symbol.literal);
+                   } else if (symbol instanceof RegExp) {
+                       return 'character matching ' + symbol;
+                   } else if (symbol.type) {
+                       return symbol.type + ' token';
+                   } else if (symbol.test) {
+                       return 'token matching ' + String(symbol.test);
+                   } else {
+                       throw new Error('Unknown symbol type: ' + symbol);
+                   }
+               }
+           }
+
+           function getSymbolShortDisplay(symbol) {
+               var type = typeof symbol;
+               if (type === "string") {
+                   return symbol;
+               } else if (type === "object") {
+                   if (symbol.literal) {
+                       return JSON.stringify(symbol.literal);
+                   } else if (symbol instanceof RegExp) {
+                       return symbol.toString();
+                   } else if (symbol.type) {
+                       return '%' + symbol.type;
+                   } else if (symbol.test) {
+                       return '<' + String(symbol.test) + '>';
+                   } else {
+                       throw new Error('Unknown symbol type: ' + symbol);
+                   }
+               }
+           }
 
            return {
                Parser: Parser,
@@ -5075,19 +5098,19 @@
        };
        var toWordOrNull = function (u) {
            //string | number | Word[] | boolean | { [index: string]: Word }
-           if (toStringOrNull(u)) {
+           if (toStringOrNull(u) !== null) {
                return u;
            }
-           if (toNumOrNull(u)) {
+           if (toNumOrNull(u) !== null) {
                return u;
            }
-           if (toArrOrNull(u)) {
+           if (toArrOrNull(u) !== null) {
                return u;
            }
-           if (toBoolOrNull(u)) {
+           if (toBoolOrNull(u) !== null) {
                return u;
            }
-           if (is(Object, u)) {
+           if (is(Object, u) !== null) {
                return u;
            }
            return null;
@@ -5104,7 +5127,7 @@
        var consReslover = function (localWD) { return function (w) {
            if (is(String, w)) {
                var newW = toWordOrNull(propOr(w, w, localWD));
-               return newW ? newW : w;
+               return newW !== null ? newW : w;
            }
            var subList = toPLOrNull(w);
            if (is(Array, subList)) {
@@ -5513,16 +5536,45 @@
                def: ['dup', 0, '>', [1, '-', 'swap', 'dup', 'dip2', 'swap', 'times'], ['drop', 'drop'], 'if-else']
            },
            'map': {
-               // { type: 'Init extends (list<words>)' },
-               // { type: 'TermTest extends (list<words>)' },
-               // { type: 'Terminal extends (list<words>)' },
-               // { type: 'Recurse extends (list<words>)' },
-               // { type: 'Final extends (list<words>)' }
+               sig: [
+                   [{ type: 'ValueList extends (list<words>)' },
+                       { type: 'Phrase extends (list<words>)' }],
+                   [{ type: 'ResultValueList extends (list<words>)' }]
+               ],
                def: [["list", "phrase"], [
                        [[], "list"],
                        ['size', 0, '<='],
                        ['drop'],
                        ['uncons', ["swap", ["phrase", 'apply'], 'dip', "swap", 'push'], 'dip'],
+                       [], 'linrec5'
+                   ], "apply-with"]
+           },
+           'filter': {
+               sig: [
+                   [{ type: 'ValueList extends (list<words>)' },
+                       { type: 'Phrase extends (list<words>)' }],
+                   [{ type: 'ResultValueList extends (list<words>)' }]
+               ],
+               def: [["list", "phrase"], [
+                       [[], "list"],
+                       ['size', 0, '<='],
+                       ['drop'],
+                       ['uncons', ["swap", ["dup", "phrase", 'apply'], 'dip', "rollup", ['push'], ['drop'], 'if-else'], 'dip'],
+                       [], 'linrec5'
+                   ], "apply-with"]
+           },
+           'reduce': {
+               sig: [
+                   [{ type: 'ValueList extends (list<words>)' },
+                       { type: 'Accumulater (word)' },
+                       { type: 'Phrase extends (list<words>)' }],
+                   [{ type: 'ResultValueList extends (list<words>)' }]
+               ],
+               def: [["list", "acc", "phrase"], [
+                       ["acc", "list"],
+                       ['size', 0, '<='],
+                       ['drop'],
+                       ['uncons', ["phrase", "apply"], 'dip'],
                        [], 'linrec5'
                    ], "apply-with"]
            },
@@ -5733,29 +5785,6 @@
            // //     }
            // // },
            // // 'floor': ['dup', 1, '%', '-'],
-           // // 'map-under': {
-           // //     'requires': 'list_module',
-           // //     'named-args': ['c', 'q'],
-           // //     'local-words': {
-           // //         'init-a': [[[]], ['a'], 'local-def'],
-           // //         'update-a': ['a', 'cons', [], 'cons', ['a'], 'local-def'],
-           // //         'destructive-first': ['c', 'pop', 'swap', [], 'cons', ['c'], 'local-def'],
-           // //         'maping': ['c', '_list-length', 0, '>',
-           // //             ['destructive-first', 'q', 'apply', 'update-a', 'maping'],
-           // //             [], 'if-else']
-           // //     },
-           // //     'definition': ['init-a', 'maping', 'a']
-           // // },
-           // // 'map': {
-           // //     'local-words': {
-           // //         'setup-map': [[]],
-           // //         'process-map': [
-           // //             ['size'], 'dip2', 'rolldown', 0, '>',
-           // //             ['rotate', 'pop', 'rolldown', 'dup', ['apply'], 'dip', ['swap'], 'dip2', ['prepend'], 'dip', 'swap', 'process-map'],
-           // //             [['drop', 'drop'], 'dip'], 'ifte']
-           // //     },
-           // //     'definition': ['list_module', 'import', 'setup-map', 'process-map']
-           // // },
            // // 'filter': {
            // //     'requires': 'list_module',
            // //     'local-words': {
