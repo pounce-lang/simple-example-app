@@ -1174,6 +1174,56 @@
          return out;
        });
 
+       /*! *****************************************************************************
+       Copyright (c) Microsoft Corporation.
+
+       Permission to use, copy, modify, and/or distribute this software for any
+       purpose with or without fee is hereby granted.
+
+       THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+       REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+       AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+       INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+       LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+       OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+       PERFORMANCE OF THIS SOFTWARE.
+       ***************************************************************************** */
+       /* global Reflect, Promise */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       function __spreadArrays() {
+           for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+           for (var r = Array(s), k = 0, i = 0; i < il; i++)
+               for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                   r[k] = a[j];
+           return r;
+       }
+
        /**
         * @desc 解决浮动运算问题，避免小数点后产生多位数和计算精度损失。
         * 问题示例：2.3 + 2.4 = 4.699999999999999，1.0 - 0.9 = 0.09999999999999998
@@ -1183,8 +1233,8 @@
         * strip(0.09999999999999998)=0.1
         */
        function strip(num, precision) {
-           if (precision === void 0) { precision = 12; }
-           return +parseFloat(num.toPrecision(precision));
+           if (precision === void 0) { precision = 15; }
+           return +parseFloat(Number(num).toPrecision(precision));
        }
        /**
         * Return digits length of a number
@@ -1193,7 +1243,7 @@
        function digitLength(num) {
            // Get digit length of e
            var eSplit = num.toString().split(/[eE]/);
-           var len = (eSplit[0].split('.')[1] || '').length - (+(eSplit[1] || 0));
+           var len = (eSplit[0].split('.')[1] || '').length - +(eSplit[1] || 0);
            return len > 0 ? len : 0;
        }
        /**
@@ -1205,7 +1255,7 @@
                return Number(num.toString().replace('.', ''));
            }
            var dLen = digitLength(num);
-           return dLen > 0 ? strip(num * Math.pow(10, dLen)) : num;
+           return dLen > 0 ? strip(Number(num) * Math.pow(10, dLen)) : Number(num);
        }
        /**
         * 检测数字是否越界，如果越界给出提示
@@ -1227,7 +1277,7 @@
                others[_i - 2] = arguments[_i];
            }
            if (others.length > 0) {
-               return times.apply(void 0, [times(num1, num2), others[0]].concat(others.slice(1)));
+               return times.apply(void 0, __spreadArrays([times(num1, num2), others[0]], others.slice(1)));
            }
            var num1Changed = float2Fixed(num1);
            var num2Changed = float2Fixed(num2);
@@ -1245,7 +1295,7 @@
                others[_i - 2] = arguments[_i];
            }
            if (others.length > 0) {
-               return plus.apply(void 0, [plus(num1, num2), others[0]].concat(others.slice(1)));
+               return plus.apply(void 0, __spreadArrays([plus(num1, num2), others[0]], others.slice(1)));
            }
            var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
            return (times(num1, baseNum) + times(num2, baseNum)) / baseNum;
@@ -1259,7 +1309,7 @@
                others[_i - 2] = arguments[_i];
            }
            if (others.length > 0) {
-               return minus.apply(void 0, [minus(num1, num2), others[0]].concat(others.slice(1)));
+               return minus.apply(void 0, __spreadArrays([minus(num1, num2), others[0]], others.slice(1)));
            }
            var baseNum = Math.pow(10, Math.max(digitLength(num1), digitLength(num2)));
            return (times(num1, baseNum) - times(num2, baseNum)) / baseNum;
@@ -1273,14 +1323,14 @@
                others[_i - 2] = arguments[_i];
            }
            if (others.length > 0) {
-               return divide.apply(void 0, [divide(num1, num2), others[0]].concat(others.slice(1)));
+               return divide.apply(void 0, __spreadArrays([divide(num1, num2), others[0]], others.slice(1)));
            }
            var num1Changed = float2Fixed(num1);
            var num2Changed = float2Fixed(num2);
            checkBoundary(num1Changed);
            checkBoundary(num2Changed);
            // fix: 类似 10 ** -4 为 0.00009999999999999999，strip 修正
-           return times((num1Changed / num2Changed), strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
+           return times(num1Changed / num2Changed, strip(Math.pow(10, digitLength(num2) - digitLength(num1))));
        }
        /**
         * 四舍五入
@@ -1298,7 +1348,17 @@
            if (flag === void 0) { flag = true; }
            _boundaryCheckingState = flag;
        }
-       var index = { strip: strip, plus: plus, minus: minus, times: times, divide: divide, round: round, digitLength: digitLength, float2Fixed: float2Fixed, enableBoundaryChecking: enableBoundaryChecking };
+       var index = {
+           strip: strip,
+           plus: plus,
+           minus: minus,
+           times: times,
+           divide: divide,
+           round: round,
+           digitLength: digitLength,
+           float2Fixed: float2Fixed,
+           enableBoundaryChecking: enableBoundaryChecking,
+       };
 
        var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -5070,7 +5130,7 @@
            }
        }
 
-       function __spreadArrays() {
+       function __spreadArrays$1() {
            for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
            for (var r = Array(s), k = 0, i = 0; i < il; i++)
                for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
@@ -5131,7 +5191,7 @@
            }
            var subList = toPLOrNull(w);
            if (is(Array, subList)) {
-               return subInWD(localWD, __spreadArrays(subList));
+               return subInWD(localWD, __spreadArrays$1(subList));
            }
            return w;
        }; };
@@ -5140,6 +5200,26 @@
            return map(resolveWord, words);
        };
        var coreWords = {
+           'words': {
+               sig: [[], [{ type: 'list' }]],
+               def: function (s) {
+                   s.push(introspectWords());
+                   return [s];
+               }
+           },
+           // introspectWord
+           'word': {
+               sig: [[{ type: 'list<string>)' }], [{ type: 'record' }]],
+               def: function (s) {
+                   var phrase = toArrOfStrOrNull(s.pop());
+                   var wordName = toStringOrNull(phrase[0]);
+                   if (wordName) {
+                       s.push(introspectWord(wordName));
+                       return [s];
+                   }
+                   return null;
+               }
+           },
            'dup': {
                sig: [[{ type: 'A', use: 'observe' }], [{ type: 'A' }]],
                def: function (s) { s.push(s[s.length - 1]); return [s]; }
@@ -5158,6 +5238,30 @@
            'drop': {
                sig: [[{ type: 'any' }], []],
                def: function (s) { s.pop(); return [s]; }
+           },
+           'round': {
+               sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
+               def: function (s) {
+                   // const b = <number | null>toTypeOrNull<number | null>(s.pop(), '(int | float)');
+                   var b = toNumOrNull(s.pop());
+                   var a = toNumOrNull(s.pop());
+                   if (a !== null && b !== null) {
+                       s.push(index.round(a, b));
+                       return [s];
+                   }
+                   return null;
+               }
+           },
+           'abs': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               def: function (s) {
+                   var a = toNumOrNull(s.pop());
+                   if (a !== null) {
+                       s.push(Math.abs(a));
+                       return [s];
+                   }
+                   return null;
+               }
            },
            '+': {
                sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
@@ -5328,7 +5432,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s[s.length - 1]);
-                   s.push(a === b);
+                   if (a !== null && b !== null) {
+                       s.push(a === b);
+                   }
                    return [s];
                }
            },
@@ -5336,7 +5442,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a === b);
+                   if (a !== null && b !== null) {
+                       s.push(a === b);
+                   }
                    return [s];
                }
            },
@@ -5344,7 +5452,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a !== b);
+                   if (a !== null && b !== null) {
+                       s.push(a !== b);
+                   }
                    return [s];
                }
            },
@@ -5352,7 +5462,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a > b);
+                   if (a !== null && b !== null) {
+                       s.push(a > b);
+                   }
                    return [s];
                }
            },
@@ -5360,7 +5472,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a < b);
+                   if (a !== null && b !== null) {
+                       s.push(a < b);
+                   }
                    return [s];
                }
            },
@@ -5368,7 +5482,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a >= b);
+                   if (a !== null && b !== null) {
+                       s.push(a >= b);
+                   }
                    return [s];
                }
            },
@@ -5376,7 +5492,9 @@
                def: function (s) {
                    var b = toNumOrNull(s.pop());
                    var a = toNumOrNull(s.pop());
-                   s.push(a <= b);
+                   if (a !== null && b !== null) {
+                       s.push(a <= b);
+                   }
                    return [s];
                }
            },
@@ -5385,7 +5503,7 @@
                    var b = toArrOrNull(s.pop());
                    var a = toArrOrNull(s.pop());
                    if (a && b) {
-                       s.push(__spreadArrays(a, b));
+                       s.push(__spreadArrays$1(a, b));
                    }
                    return [s];
                }
@@ -5395,7 +5513,7 @@
                    var b = toArrOrNull(s.pop());
                    var a = s.pop();
                    if (b) {
-                       s.push(__spreadArrays([a], b));
+                       s.push(__spreadArrays$1([a], b));
                    }
                    return [s];
                }
@@ -5414,7 +5532,7 @@
                    var item = s.pop();
                    var arr = toArrOrNull(s.pop());
                    if (arr) {
-                       s.push(__spreadArrays(arr, [item]));
+                       s.push(__spreadArrays$1(arr, [item]));
                    }
                    return [s];
                }
@@ -5445,7 +5563,7 @@
                    var initial = toPLOrNull(s.pop());
                    if (initial && increment && condition && recurse && final) {
                        var nextRec = [[], increment, condition, recurse, final, 'constrec'];
-                       pl = __spreadArrays(initial, increment, condition, [__spreadArrays(recurse, nextRec), final, 'if-else']).concat(pl);
+                       pl = __spreadArrays$1(initial, increment, condition, [__spreadArrays$1(recurse, nextRec), final, 'if-else']).concat(pl);
                    }
                    return [s, pl];
                }
@@ -5464,8 +5582,8 @@
                    var terminal = toPLOrNull(s.pop());
                    var termtest = toPLOrNull(s.pop());
                    if (termtest && terminal && recurse && final) {
-                       var nextRec = __spreadArrays([termtest, terminal, recurse, final, 'linrec'], final);
-                       pl = __spreadArrays(termtest, [terminal, __spreadArrays(recurse, nextRec), 'if-else']).concat(pl);
+                       var nextRec = __spreadArrays$1([termtest, terminal, recurse, final, 'linrec'], final);
+                       pl = __spreadArrays$1(termtest, [terminal, __spreadArrays$1(recurse, nextRec), 'if-else']).concat(pl);
                    }
                    else {
                        console.log("some stack value(s) not found");
@@ -5491,8 +5609,8 @@
                    var termtest = toPLOrNull(s.pop());
                    var init = toPLOrNull(s.pop());
                    if (init && termtest && terminal && recurse && final) {
-                       var nextRec = __spreadArrays([termtest, terminal, recurse, final, 'linrec'], final);
-                       pl = __spreadArrays(init, termtest, [terminal, __spreadArrays(recurse, nextRec), 'if-else']).concat(pl);
+                       var nextRec = __spreadArrays$1([termtest, terminal, recurse, final, 'linrec'], final);
+                       pl = __spreadArrays$1(init, termtest, [terminal, __spreadArrays$1(recurse, nextRec), 'if-else']).concat(pl);
                    }
                    else {
                        console.log("some stack value(s) not found");
@@ -5517,7 +5635,7 @@
                    var termtest = toPLOrNull(s.pop());
                    if (termtest && terminal && recurse && final) {
                        var nextRec = [termtest, terminal, recurse, final, 'binrec'];
-                       pl = __spreadArrays(termtest, [terminal, __spreadArrays(recurse, [__spreadArrays(nextRec), 'dip'], nextRec, final), 'if-else']).concat(pl);
+                       pl = __spreadArrays$1(termtest, [terminal, __spreadArrays$1(recurse, [__spreadArrays$1(nextRec), 'dip'], nextRec, final), 'if-else']).concat(pl);
                    }
                    else {
                        console.log("some stack value(s) not found");
@@ -5818,7 +5936,7 @@
                return mergeRight(wd, new_word);
            };
            // non-FP section (candidate for refactor)
-           var next_pl = __spreadArrays(pl);
+           var next_pl = __spreadArrays$1(pl);
            var next_wd = {};
            var def_i = findIndex(function (word) { return word === 'def'; }, next_pl);
            while (def_i !== -1) {
@@ -5869,7 +5987,7 @@
                        if (!wds) return [3 /*break*/, 10];
                        if (!(opt.logLevel && !opt.yieldOnId)) return [3 /*break*/, 8];
                        if (!debugLevel(internalCallStack, opt.logLevel)) return [3 /*break*/, 6];
-                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
+                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays$1(internalCallStack) }];
                    case 5:
                        _d = _k.sent();
                        return [3 /*break*/, 7];
@@ -5892,7 +6010,7 @@
                                plist = toPLOrNull(wds.def);
                                if (plist) {
                                    internalCallStack.push(toStringOrNull(w));
-                                   pl = __spreadArrays(plist, ["popInternalCallStack"], pl);
+                                   pl = __spreadArrays$1(plist, ["popInternalCallStack"], pl);
                                }
                            }
                        }
@@ -5907,7 +6025,7 @@
                        }
                        if (!(opt.logLevel && opt.yieldOnId)) return [3 /*break*/, 14];
                        if (!(debugLevel(internalCallStack, opt.logLevel))) return [3 /*break*/, 12];
-                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays(internalCallStack) }];
+                       return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays$1(internalCallStack) }];
                    case 11:
                        _f = _k.sent();
                        return [3 /*break*/, 13];
@@ -5923,7 +6041,7 @@
                    case 16: return [3 /*break*/, 4];
                    case 17:
                        if (!(cycles >= maxCycles || internalCallStack.length >= 1000)) return [3 /*break*/, 19];
-                       return [4 /*yield*/, { stack: s, prog: pl, active: false, internalCallStack: __spreadArrays(internalCallStack), error: "maxCycles or callStack size exceeded: this may be an infinite loop" }];
+                       return [4 /*yield*/, { stack: s, prog: pl, active: false, internalCallStack: __spreadArrays$1(internalCallStack), error: "maxCycles or callStack size exceeded: this may be an infinite loop" }];
                    case 18:
                        _k.sent();
                        _k.label = 19;
@@ -5934,6 +6052,8 @@
                }
            });
        }
+       var introspectWords = function () { return keys(coreWords); };
+       var introspectWord = function (wn) { return JSON.parse(JSON.stringify(path([wn], coreWords))); };
        var unParse = unParser;
        var interpreter$1 = interpreter;
 
