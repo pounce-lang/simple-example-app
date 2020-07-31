@@ -22,7 +22,7 @@ npm install
 ```
 
 ``` shell
-npm run dev
+npm run start
 ```
 
 Next open a browser and try it out.
