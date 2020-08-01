@@ -49,6 +49,10 @@
 <option value="8 [-1 0 1 89] [[dup] dip +] map">map may use what is below on the stack</option>
 <option value="[-1 0 1 98] [2 % 0 ==] filter">filter</option>
 <option value="[-1 0 1 98] 0 [+] reduce">reduce</option>
+<option value="[2 3 4] [3 3 3] [1 5 5]
+
+[[k] [stack-copy [uncons drop k ==] filter] apply-with] [filterOn] def
+3 filterOn">stack-copy &amp; filter</option>
 
             </select>
             <select id="logLevel"  class="input-hilight">
