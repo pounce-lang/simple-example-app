@@ -2939,7 +2939,7 @@
                        if (this._offset < this._inputSize) {
                            chunk0 = this._input.substring(this._offset, this._offset + 1);
                        }
-                       if (chunk0 !== null && /^[a-zA-Z0-9\_\-\+\=\/\~\!\@\$\%\^\&\*\?\<\>]/.test(chunk0)) {
+                       if (chunk0 !== null && /^[a-zA-Z0-9\|\_\-\+\=\/\~\!\@\$\%\^\&\*\?\<\>]/.test(chunk0)) {
                            address2 = new TreeNode(this._input.substring(this._offset, this._offset + 1), this._offset);
                            this._offset = this._offset + 1;
                        }
@@ -2950,7 +2950,7 @@
                                this._expected = [];
                            }
                            if (this._offset === this._failure) {
-                               this._expected.push('[a-zA-Z0-9\\_\\-\\+\\=\\/\\~\\!\\@\\$\\%\\^\\&\\*\\?\\<\\>]');
+                               this._expected.push('[a-zA-Z0-9\\|\\_\\-\\+\\=\\/\\~\\!\\@\\$\\%\\^\\&\\*\\?\\<\\>]');
                            }
                        }
                        if (address2 !== FAILURE) {
@@ -5291,7 +5291,7 @@
        var coreWords = {
            'words': {
                sig: [[], [{ type: 'list' }]],
-               def: function (s) {
+               compose: function (s) {
                    s.push(introspectWords());
                    return [s];
                }
@@ -5299,26 +5299,28 @@
            // introspectWord
            'word': {
                sig: [[{ type: 'list<string>)' }], [{ type: 'record' }]],
-               def: function (s) {
-                   var phrase = toArrOfStrOrNull(s.pop());
+               compose: function (s) {
+                   var _a;
+                   var phrase = toArrOfStrOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
                    var wordName = toStringOrNull(phrase[0]);
                    if (wordName) {
                        s.push(introspectWord(wordName));
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
            'dup': {
                sig: [[{ type: 'A', use: 'observe' }], [{ type: 'A' }]],
-               def: function (s) { s.push(s[s.length - 1]); return [s]; }
+               compose: function (s) { s.push(s[s.length - 1]); return [s]; }
            },
            //    'dup': s => { s.push(JSON.parse(JSON.stringify(s[s.length - 1]))); return [s]; },
            'swap': {
                sig: [[{ type: 'A' }, { type: 'B' }], [{ type: 'B' }, { type: 'A' }]],
-               def: function (s) {
-                   var top = s.pop();
-                   var under = s.pop();
+               compose: function (s) {
+                   var _a, _b;
+                   var top = (_a = s) === null || _a === void 0 ? void 0 : _a.pop();
+                   var under = (_b = s) === null || _b === void 0 ? void 0 : _b.pop();
                    s.push(top);
                    s.push(under);
                    return [s];
@@ -5326,97 +5328,647 @@
            },
            'drop': {
                sig: [[{ type: 'any' }], []],
-               def: function (s) { s.pop(); return [s]; }
+               compose: function (s) { var _a; (_a = s) === null || _a === void 0 ? void 0 : _a.pop(); return [s]; }
            },
            'round': {
                sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
-               def: function (s) {
-                   // const b = <number | null>toTypeOrNull<number | null>(s.pop(), '(int | float)');
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   // const b = <number | null>toTypeOrNull<number | null>(s?.pop(), '(int | float)');
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(index.round(a, b));
                        return [s];
                    }
-                   return null;
-               }
-           },
-           'abs': {
-               sig: [[{ type: 'number' }], [{ type: 'number' }]],
-               def: function (s) {
-                   var a = toNumOrNull(s.pop());
-                   if (a !== null) {
-                       s.push(Math.abs(a));
-                       return [s];
-                   }
-                   return null;
+                   return [null];
                }
            },
            '+': {
                sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
-               def: function (s) {
-                   // const b = <number | null>toTypeOrNull<number | null>(s.pop(), '(int | float)');
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   // const b = <number | null>toTypeOrNull<number | null>(s?.pop(), '(int | float)');
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(index.plus(a, b));
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
            '-': {
                sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(index.minus(a, b));
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
            '/': {
                sig: [[{ type: 'number' }, { type: 'number', gaurd: [0, '!='] }], [{ type: 'number' }]],
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null && b !== 0) {
                        s.push(index.divide(a, b));
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
            '%': {
                sig: [[{ type: 'number' }, { type: 'number', gaurd: [0, '!='] }], [{ type: 'number' }]],
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null && b !== 0) {
                        s.push(a % b);
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
            '*': {
                sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(index.times(a, b));
                        return [s];
                    }
-                   return null;
+                   return [null];
                }
            },
-           'apply': {
+           // bitwise on integers
+           '&': {
+               sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(a & b);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '|': {
+               sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(a | b);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '^': {
+               sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(a ^ b);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '~': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(~a);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '&&': {
+               sig: [[{ type: 'boolean' }, { type: 'boolean' }], [{ type: 'boolean' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toBoolOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toBoolOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(a && b);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '||': {
+               sig: [[{ type: 'boolean' }, { type: 'boolean' }], [{ type: 'boolean' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toBoolOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toBoolOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(a || b);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           '!': {
+               sig: [[{ type: 'boolean' }], [{ type: 'boolean' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toBoolOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(!a);
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.E
+           'E': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.E);
+                   return [s];
+               }
+           },
+           // Math.LN10
+           'LN10': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.LN10);
+                   return [s];
+               }
+           },
+           // Math.LN2
+           'LN2': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.LN2);
+                   return [s];
+               }
+           },
+           // Math.LOG10E
+           'LOG10E': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.LOG10E);
+                   return [s];
+               }
+           },
+           // Math.LOG2E
+           'LOG2E': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.LOG2E);
+                   return [s];
+               }
+           },
+           // Math.PI
+           'PI': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.PI);
+                   return [s];
+               }
+           },
+           // Math.SQRT1_2
+           'SQRT1_2': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.SQRT1_2);
+                   return [s];
+               }
+           },
+           // Math.SQRT2
+           'SQRT2': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.SQRT2);
+                   return [s];
+               }
+           },
+           // Math.abs()
+           'abs': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.abs(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.acos()
+           'acos': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.acos(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.acosh()
+           'acosh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.acosh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.asin()
+           'asin': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.asin(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.asinh()
+           'asinh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.asinh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.atan()
+           'atan': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.atan(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.atan2()
+           'atan2': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var b = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(Math.atan2(b, a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.atanh()
+           'atanh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.atanh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.cbrt()
+           'cbrt': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.cbrt(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.ceil()
+           'ceil': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.ceil(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.cos()
+           'cos': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.cos(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.cosh()
+           'cosh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.cosh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.exp()
+           'exp': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.exp(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.expm1()
+           'expm1': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.expm1(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.floor()
+           'floor': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.floor(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.hypot()
+           'hypot': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.hypot(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.log()
+           'log': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.log(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.log10()
+           'log10': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.log10(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.log1p()
+           'log1p': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.log1p(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.log2()
+           'log2': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.log2(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.max()
+           'max': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.max(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.min()
+           'min': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.min(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.pow()
+           'pow': {
+               sig: [[{ type: 'number' }, { type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a, _b;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var b = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   if (a !== null && b !== null) {
+                       s.push(Math.pow(b, a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.random()
+           'random': {
+               sig: [[], [{ type: 'number' }]],
+               compose: function (s) {
+                   s.push(Math.random());
+                   return [s];
+               }
+           },
+           // Math.sign()
+           'sign': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.sign(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.sin()
+           'sin': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.sin(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.sinh()
+           'sinh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.sinh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.sqrt()
+           'sqrt': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.sqrt(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.tan()
+           'tan': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.tan(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.tanh()
+           'tanh': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.tanh(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           // Math.trunc()
+           'trunc': {
+               sig: [[{ type: 'number' }], [{ type: 'number' }]],
+               compose: function (s) {
+                   var _a;
+                   var a = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   if (a !== null) {
+                       s.push(Math.trunc(a));
+                       return [s];
+                   }
+                   return [null];
+               }
+           },
+           'play': {
                sig: [[{ type: 'P extends (list<words>)', use: 'run!' }], [{ type: 'result(P)' }]],
-               def: function (s, pl) {
-                   var block = toPLOrNull(s.pop());
+               compose: function (s, pl) {
+                   var _a;
+                   var block = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
                    if (block) {
                        pl = block.concat(pl);
                    }
@@ -5426,13 +5978,14 @@
                    return [s, pl];
                }
            },
-           'apply-with': {
+           'pounce': {
                sig: [[{ type: 'Args extends (list<string>)', use: 'pop-each!' }, { type: 'P extends (list<words>)', use: 'run!' }], [{ type: 'result(P)' }]],
-               def: function (s, pl) {
-                   var words = toPLOrNull(s.pop());
-                   var argList = toArrOfStrOrNull(s.pop());
+               compose: function (s, pl) {
+                   var _a, _b;
+                   var words = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var argList = toArrOfStrOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (words !== null && argList) {
-                       var values = map(function () { return s.pop(); }, argList);
+                       var values = map(function () { var _a; return (_a = s) === null || _a === void 0 ? void 0 : _a.pop(); }, argList);
                        var localWD = zipObj(reverse(argList), values);
                        var newWords = toPLOrNull(subInWD(localWD, words));
                        if (newWords) {
@@ -5444,9 +5997,10 @@
            },
            'dip': {
                sig: [[{ type: 'A' }, { type: 'list<word>', use: 'run' }], [{ type: 'run-result' }, { type: 'A' }]],
-               def: function (s, pl) {
-                   var block = toPLOrNull(s.pop());
-                   var item = s.pop();
+               compose: function (s, pl) {
+                   var _a, _b;
+                   var block = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var item = (_b = s) === null || _b === void 0 ? void 0 : _b.pop();
                    pl = [item].concat(pl);
                    if (block) {
                        pl = block.concat(pl);
@@ -5459,11 +6013,12 @@
            },
            'dip2': {
                sig: [[{ type: 'a' }, { type: 'b' }, { type: 'list<word>', use: 'run' }], [{ type: 'run-result' }, { type: 'a' }, { type: 'b' }]],
-               def: function (s, pl) {
-                   var block = toPLOrNull(s.pop());
-                   var item2 = s.pop();
+               compose: function (s, pl) {
+                   var _a, _b, _c;
+                   var block = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var item2 = (_b = s) === null || _b === void 0 ? void 0 : _b.pop();
                    pl = [item2].concat(pl);
-                   var item1 = s.pop();
+                   var item1 = (_c = s) === null || _c === void 0 ? void 0 : _c.pop();
                    pl = [item1].concat(pl);
                    if (block) {
                        pl = block.concat(pl);
@@ -5476,23 +6031,24 @@
            },
            'rotate': {
                sig: [[{ type: 'A' }, { type: 'B' }, { type: 'C' }], [{ type: 'C' }, { type: 'B' }, { type: 'A' }]],
-               def: ['swap', ['swap'], 'dip', 'swap']
+               compose: ['swap', ['swap'], 'dip', 'swap']
            },
            'rollup': {
                sig: [[{ type: 'A' }, { type: 'B' }, { type: 'C' }], [{ type: 'C' }, { type: 'A' }, { type: 'B' }]],
-               def: ['swap', ['swap'], 'dip']
+               compose: ['swap', ['swap'], 'dip']
            },
            'rolldown': {
                sig: [[{ type: 'A' }, { type: 'B' }, { type: 'C' }], [{ type: 'B' }, { type: 'C' }, { type: 'A' }]],
-               def: [['swap'], 'dip', 'swap']
+               compose: [['swap'], 'dip', 'swap']
            },
            'if-else': {
-               def: function (s, pl) {
-                   var else_block = toPLOrNull(s.pop());
-                   var then_block = toPLOrNull(s.pop());
-                   var condition = toBoolOrNull(s.pop());
+               compose: function (s, pl) {
+                   var _a, _b, _c;
+                   var else_block = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var then_block = toPLOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   var condition = toBoolOrNull((_c = s) === null || _c === void 0 ? void 0 : _c.pop());
                    if (condition === null || then_block === null || else_block === null) {
-                       return null;
+                       return [null];
                    }
                    if (condition) {
                        if (is(Array, then_block)) {
@@ -5514,33 +6070,53 @@
                }
            },
            'ifte': {
-               // expects: [{ desc: 'conditional', ofType: 'list' }, { desc: 'then clause', ofType: 'list' }, { desc: 'then clause', ofType: 'list' }], effects: [-3], tests: [], desc: 'conditionally apply the first or second quotation',
-               def: [['apply'], 'dip2', 'if-else']
+               // expects: [{ desc: 'conditional', ofType: 'list' }, { desc: 'then clause', ofType: 'list' }, { desc: 'then clause', ofType: 'list' }], effects: [-3], tests: [], desc: 'conditionally play the first or second quotation',
+               compose: [['play'], 'dip2', 'if-else']
            },
            '=': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a;
+                   var top = (_a = s) === null || _a === void 0 ? void 0 : _a.pop();
+                   var b = toNumOrNull(top);
                    var a = toNumOrNull(s[s.length - 1]);
                    if (a !== null && b !== null) {
                        s.push(a === b);
+                   }
+                   else {
+                       var c = toStringOrNull(top);
+                       var d = toStringOrNull(s[s.length - 1]);
+                       if (c !== null && d !== null) {
+                           s.push(c === d);
+                       }
                    }
                    return [s];
                }
            },
            '==': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
-                   if (a !== null && b !== null) {
-                       s.push(a === b);
+               compose: function (s) {
+                   var _a, _b;
+                   var b = (_a = s) === null || _a === void 0 ? void 0 : _a.pop();
+                   var a = (_b = s) === null || _b === void 0 ? void 0 : _b.pop();
+                   var num_b = toNumOrNull(b);
+                   var num_a = toNumOrNull(a);
+                   if (num_a !== null && num_b !== null) {
+                       s.push(num_a === num_b);
+                   }
+                   else {
+                       var str_b = toStringOrNull(b);
+                       var str_a = toStringOrNull(a);
+                       if (str_a !== null && str_b !== null) {
+                           s.push(str_a === str_b);
+                       }
                    }
                    return [s];
                }
            },
            '!=': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(a !== b);
                    }
@@ -5548,9 +6124,10 @@
                }
            },
            '>': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(a > b);
                    }
@@ -5558,9 +6135,10 @@
                }
            },
            '<': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(a < b);
                    }
@@ -5568,9 +6146,10 @@
                }
            },
            '>=': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(a >= b);
                    }
@@ -5578,9 +6157,10 @@
                }
            },
            '<=': {
-               def: function (s) {
-                   var b = toNumOrNull(s.pop());
-                   var a = toNumOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toNumOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toNumOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a !== null && b !== null) {
                        s.push(a <= b);
                    }
@@ -5588,9 +6168,10 @@
                }
            },
            'concat': {
-               def: function (s) {
-                   var b = toArrOrNull(s.pop());
-                   var a = toArrOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toArrOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = toArrOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (a && b) {
                        s.push(__spreadArrays$1(a, b));
                    }
@@ -5598,9 +6179,10 @@
                }
            },
            'cons': {
-               def: function (s) {
-                   var b = toArrOrNull(s.pop());
-                   var a = s.pop();
+               compose: function (s) {
+                   var _a, _b;
+                   var b = toArrOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var a = (_b = s) === null || _b === void 0 ? void 0 : _b.pop();
                    if (b) {
                        s.push(__spreadArrays$1([a], b));
                    }
@@ -5608,8 +6190,9 @@
                }
            },
            'uncons': {
-               def: function (s) {
-                   var arr = toArrOrNull(s.pop());
+               compose: function (s) {
+                   var _a;
+                   var arr = toArrOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
                    if (arr) {
                        s.push(head(arr), tail(arr));
                    }
@@ -5617,9 +6200,10 @@
                }
            },
            'push': {
-               def: function (s) {
-                   var item = s.pop();
-                   var arr = toArrOrNull(s.pop());
+               compose: function (s) {
+                   var _a, _b;
+                   var item = (_a = s) === null || _a === void 0 ? void 0 : _a.pop();
+                   var arr = toArrOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
                    if (arr) {
                        s.push(__spreadArrays$1(arr, [item]));
                    }
@@ -5627,8 +6211,9 @@
                }
            },
            'pop': {
-               def: function (s) {
-                   var arr = toArrOrNull(s.pop());
+               compose: function (s) {
+                   var _a;
+                   var arr = toArrOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
                    if (arr) {
                        s.push(init(arr), last(arr));
                    }
@@ -5643,13 +6228,14 @@
                        { type: 'Recurse extends (list<words>)' },
                        { type: 'Final extends (list<words>)' }
                    ], []],
-               def: function (s, pl) {
+               compose: function (s, pl) {
+                   var _a, _b, _c, _d, _e;
                    // initial increment condition recurse final constrec
-                   var final = toPLOrNull(s.pop());
-                   var recurse = toPLOrNull(s.pop());
-                   var condition = toPLOrNull(s.pop());
-                   var increment = toPLOrNull(s.pop());
-                   var initial = toPLOrNull(s.pop());
+                   var final = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var recurse = toPLOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   var condition = toPLOrNull((_c = s) === null || _c === void 0 ? void 0 : _c.pop());
+                   var increment = toPLOrNull((_d = s) === null || _d === void 0 ? void 0 : _d.pop());
+                   var initial = toPLOrNull((_e = s) === null || _e === void 0 ? void 0 : _e.pop());
                    if (initial && increment && condition && recurse && final) {
                        var nextRec = [[], increment, condition, recurse, final, 'constrec'];
                        pl = __spreadArrays$1(initial, increment, condition, [__spreadArrays$1(recurse, nextRec), final, 'if-else']).concat(pl);
@@ -5664,12 +6250,13 @@
                        { type: 'Recurse extends (list<words>)' },
                        { type: 'Final extends (list<words>)' }
                    ], []],
-               def: function (s, pl) {
+               compose: function (s, pl) {
+                   var _a, _b, _c, _d;
                    // termtest && terminal && recurse && final linrec 
-                   var final = toPLOrNull(s.pop());
-                   var recurse = toPLOrNull(s.pop());
-                   var terminal = toPLOrNull(s.pop());
-                   var termtest = toPLOrNull(s.pop());
+                   var final = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var recurse = toPLOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   var terminal = toPLOrNull((_c = s) === null || _c === void 0 ? void 0 : _c.pop());
+                   var termtest = toPLOrNull((_d = s) === null || _d === void 0 ? void 0 : _d.pop());
                    if (termtest && terminal && recurse && final) {
                        var nextRec = __spreadArrays$1([termtest, terminal, recurse, final, 'linrec'], final);
                        pl = __spreadArrays$1(termtest, [terminal, __spreadArrays$1(recurse, nextRec), 'if-else']).concat(pl);
@@ -5690,13 +6277,14 @@
                        { type: 'Recurse extends (list<words>)' },
                        { type: 'Final extends (list<words>)' }
                    ], []],
-               def: function (s, pl) {
+               compose: function (s, pl) {
+                   var _a, _b, _c, _d, _e;
                    // termtest && terminal && recurse && final linrec 
-                   var final = toPLOrNull(s.pop());
-                   var recurse = toPLOrNull(s.pop());
-                   var terminal = toPLOrNull(s.pop());
-                   var termtest = toPLOrNull(s.pop());
-                   var init = toPLOrNull(s.pop());
+                   var final = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var recurse = toPLOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   var terminal = toPLOrNull((_c = s) === null || _c === void 0 ? void 0 : _c.pop());
+                   var termtest = toPLOrNull((_d = s) === null || _d === void 0 ? void 0 : _d.pop());
+                   var init = toPLOrNull((_e = s) === null || _e === void 0 ? void 0 : _e.pop());
                    if (init && termtest && terminal && recurse && final) {
                        var nextRec = __spreadArrays$1([termtest, terminal, recurse, final, 'linrec'], final);
                        pl = __spreadArrays$1(init, termtest, [terminal, __spreadArrays$1(recurse, nextRec), 'if-else']).concat(pl);
@@ -5716,12 +6304,13 @@
                        { type: 'Recurse extends (list<words>)' },
                        { type: 'Final extends (list<words>)' }
                    ], []],
-               def: function (s, pl) {
+               compose: function (s, pl) {
+                   var _a, _b, _c, _d;
                    // termtest && terminal && recurse && final binrec 
-                   var final = toPLOrNull(s.pop());
-                   var recurse = toPLOrNull(s.pop());
-                   var terminal = toPLOrNull(s.pop());
-                   var termtest = toPLOrNull(s.pop());
+                   var final = toPLOrNull((_a = s) === null || _a === void 0 ? void 0 : _a.pop());
+                   var recurse = toPLOrNull((_b = s) === null || _b === void 0 ? void 0 : _b.pop());
+                   var terminal = toPLOrNull((_c = s) === null || _c === void 0 ? void 0 : _c.pop());
+                   var termtest = toPLOrNull((_d = s) === null || _d === void 0 ? void 0 : _d.pop());
                    if (termtest && terminal && recurse && final) {
                        var nextRec = [termtest, terminal, recurse, final, 'binrec'];
                        pl = __spreadArrays$1(termtest, [terminal, __spreadArrays$1(recurse, [__spreadArrays$1(nextRec), 'dip'], nextRec, final), 'if-else']).concat(pl);
@@ -5736,11 +6325,11 @@
            },
            'dup2': {
                sig: [[{ type: 'A', use: 'observe' }, { type: 'B', use: 'observe' }], [{ type: 'A' }, { type: 'B' }]],
-               def: [['dup'], 'dip', 'dup', ['swap'], 'dip']
+               compose: [['dup'], 'dip', 'dup', ['swap'], 'dip']
            },
            'times': {
                sig: [[{ type: 'P extends (list<words>)', use: 'runs' }, { type: 'int as n' }], [{ type: 'P n times' }]],
-               def: ['dup', 0, '>', [1, '-', 'swap', 'dup', 'dip2', 'swap', 'times'], ['drop', 'drop'], 'if-else']
+               compose: ['dup', 0, '>', [1, '-', 'swap', 'dup', 'dip2', 'swap', 'times'], ['drop', 'drop'], 'if-else']
            },
            'map': {
                sig: [
@@ -5748,13 +6337,13 @@
                        { type: 'Phrase extends (list<words>)' }],
                    [{ type: 'ResultValueList extends (list<words>)' }]
                ],
-               def: [["list", "phrase"], [
+               compose: [["list", "phrase"], [
                        [[], "list"],
                        ['size', 0, '<='],
                        ['drop'],
-                       ['uncons', ["swap", ["phrase", 'apply'], 'dip', "swap", 'push'], 'dip'],
+                       ['uncons', ["swap", ["phrase", 'play'], 'dip', "swap", 'push'], 'dip'],
                        [], 'linrec5'
-                   ], "apply-with"]
+                   ], "pounce"]
            },
            'filter': {
                sig: [
@@ -5762,13 +6351,13 @@
                        { type: 'Phrase extends (list<words>)' }],
                    [{ type: 'ResultValueList extends (list<words>)' }]
                ],
-               def: [["list", "phrase"], [
+               compose: [["list", "phrase"], [
                        [[], "list"],
                        ['size', 0, '<='],
                        ['drop'],
-                       ['uncons', ["swap", ["dup", "phrase", 'apply'], 'dip', "rollup", ['push'], ['drop'], 'if-else'], 'dip'],
+                       ['uncons', ["swap", ["dup", "phrase", 'play'], 'dip', "rollup", ['push'], ['drop'], 'if-else'], 'dip'],
                        [], 'linrec5'
-                   ], "apply-with"]
+                   ], "pounce"]
            },
            'reduce': {
                sig: [
@@ -5777,27 +6366,27 @@
                        { type: 'Phrase extends (list<words>)' }],
                    [{ type: 'ResultValueList extends (list<words>)' }]
                ],
-               def: [["list", "acc", "phrase"], [
+               compose: [["list", "acc", "phrase"], [
                        ["acc", "list"],
                        ['size', 0, '<='],
                        ['drop'],
-                       ['uncons', ["phrase", "apply"], 'dip'],
+                       ['uncons', ["phrase", "play"], 'dip'],
                        [], 'linrec5'
-                   ], "apply-with"]
+                   ], "pounce"]
            },
            'split': {
-               def: [["cutVal", "theList", "operator"], [
+               compose: [["cutVal", "theList", "operator"], [
                        [], [], "cutVal", "theList",
                        'size',
                        ['uncons',
-                           ['dup2', "operator", "apply",
+                           ['dup2', "operator", "play",
                                ['swap', ['swap', ['push'], 'dip'], 'dip'],
                                ['swap', ['push'], 'dip'], 'if-else'], 'dip',
                        ], 'swap', 'times', 'drop', 'swap', ['push'], 'dip'
-                   ], "apply-with"]
+                   ], "pounce"]
            },
            'size': {
-               def: function (s) {
+               compose: function (s) {
                    var arr = toArrOrNull(s[s.length - 1]);
                    if (arr) {
                        s.push(arr.length);
@@ -5806,23 +6395,23 @@
                }
            },
            'depth': {
-               def: function (s) {
+               compose: function (s) {
                    s.push(s.length);
                    return [s];
                }
            },
            'stack-copy': {
-               def: function (s) {
+               compose: function (s) {
                    s.push(__spreadArrays$1(s));
                    return [s];
                }
            },
            'popInternalCallStack': {
-               def: []
+               compose: []
            }
            // // 'import': {
            // //     definition: function (s: Json[], pl: PL, wordstack: Dictionary[]) {
-           // //         const importable = toString(s.pop());
+           // //         const importable = toString(s?.pop());
            // //         if (typeof importable === 'string') {
            // //             if (imported[importable]) {
            // //                 // already imported
@@ -5845,23 +6434,9 @@
            // //         return [s, pl];
            // //     }
            // // },
-           // // 'random': {
-           // //     definition: function (s: Json[]) {
-           // //         s.push(Math.random());
-           // //         return [s, pl];
-           // //     }
-           // // },
-           // // 'round': {
-           // //     definition: function (s: Json[]) {
-           // //         const pres = s.pop();
-           // //         const n = s.pop();
-           // //         s.push(Math.round(n / pres) * pres);
-           // //         return [s, pl];
-           // //     }
-           // // },
            // // 'abs': {
            // //     definition: function (s: Json[]) {
-           // //         const n = s.pop();
+           // //         const n = s?.pop();
            // //         s.push(Math.abs(n));
            // //         return [s, pl];
            // //     }
@@ -5869,8 +6444,8 @@
            // // 's2int': {
            // //     expects: [{ desc: 'a number in a string', ofType: 'string' }, { desc: 'radix', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const radix = s.pop();
-           // //         const str = toString(s.pop());
+           // //         const radix = s?.pop();
+           // //         const str = toString(s?.pop());
            // //         s.push(Number.parseInt(str, radix));
            // //         return [s, pl];
            // //     }
@@ -5878,8 +6453,8 @@
            // // 'int2s': {
            // //     expects: [{ desc: 'number', ofType: 'integer' }, { desc: 'radix', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const radix = s.pop();
-           // //         const n = s.pop();
+           // //         const radix = s?.pop();
+           // //         const n = s?.pop();
            // //         s.push(n.toString(radix));
            // //         return [s, pl];
            // //     }
@@ -5887,8 +6462,8 @@
            // // '<<': {
            // //     expects: [{ desc: 'number', ofType: 'integer' }, { desc: 'shift', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const shift = s.pop();
-           // //         const n = s.pop();
+           // //         const shift = s?.pop();
+           // //         const n = s?.pop();
            // //         s.push(n << shift);
            // //         return [s, pl];
            // //     }
@@ -5896,8 +6471,8 @@
            // // '>>': {
            // //     expects: [{ desc: 'number', ofType: 'integer' }, { desc: 'shift', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const shift = s.pop();
-           // //         const n = s.pop();
+           // //         const shift = s?.pop();
+           // //         const n = s?.pop();
            // //         s.push(n >> shift);
            // //         return [s, pl];
            // //     }
@@ -5905,8 +6480,8 @@
            // // 'XOR': {
            // //     expects: [{ desc: 'number', ofType: 'integer' }, { desc: 'shift', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const shift = s.pop();
-           // //         const n = s.pop();
+           // //         const shift = s?.pop();
+           // //         const n = s?.pop();
            // //         s.push(n ^ shift);
            // //         return [s, pl];
            // //     }
@@ -5914,29 +6489,29 @@
            // // 'AND': {
            // //     expects: [{ desc: 'number', ofType: 'integer' }, { desc: 'shift', ofType: 'integer' }],
            // //     definition: function (s: Json[]) {
-           // //         const shift = s.pop();
-           // //         const n = s.pop();
+           // //         const shift = s?.pop();
+           // //         const n = s?.pop();
            // //         s.push(n & shift);
            // //         return [s, pl];
            // //     }
            // // },
            // // 'store.set': {
            // //     definition: function (s: Json[]) {
-           // //         const name = toString(s.pop());
-           // //         localStorage.setItem(name, JSON.stringify(s.pop()));
+           // //         const name = toString(s?.pop());
+           // //         localStorage.setItem(name, JSON.stringify(s?.pop()));
            // //         return [s, pl];
            // //     }
            // // },
            // // 'store.get': {
            // //     definition: function (s: Json[]) {
-           // //         const name = toString(s.pop());
+           // //         const name = toString(s?.pop());
            // //         s.push(JSON.parse(localStorage.getItem(name)));
            // //         return [s, pl];
            // //     }
            // // },
            // // 'store.remove': {
            // //     definition: function (s: Json[]) {
-           // //         const name = toString(s.pop());
+           // //         const name = toString(s?.pop());
            // //         localStorage.removeItem(name);
            // //         return [s, pl];
            // //     }
@@ -5951,8 +6526,8 @@
            // // 'and': {
            // //     expects: [{ desc: 'a', ofType: 'boolean' }, { desc: 'b', ofType: 'boolean' }], effects: [-1], tests: [], desc: 'logical and',
            // //     definition: function (s: Json[]) {
-           // //         const b = toBoolean(s.pop());
-           // //         const a = toBoolean(s.pop());
+           // //         const b = toBoolean(s?.pop());
+           // //         const a = toBoolean(s?.pop());
            // //         s.push(a && b);
            // //         return [s, pl];
            // //     }
@@ -5960,8 +6535,8 @@
            // // 'or': {
            // //     expects: [{ desc: 'a', ofType: 'boolean' }, { desc: 'b', ofType: 'boolean' }], effects: [-1], tests: [], desc: 'logical or',
            // //     definition: function (s: Json[]) {
-           // //         const b = toBoolean(s.pop());
-           // //         const a = toBoolean(s.pop());
+           // //         const b = toBoolean(s?.pop());
+           // //         const a = toBoolean(s?.pop());
            // //         s.push(a || b);
            // //         return [s, pl];
            // //     }
@@ -5969,7 +6544,7 @@
            // // 'not': {
            // //     expects: [{ desc: 'a', ofType: 'boolean' }], effects: [0], tests: [], desc: 'logical not',
            // //     definition: function (s: Json[]) {
-           // //         const a = toBoolean(s.pop());
+           // //         const a = toBoolean(s?.pop());
            // //         s.push(!a);
            // //         return [s, pl];
            // //     }
@@ -5982,10 +6557,10 @@
            // //     'definition': [[], ['cons'], 'c', 'repeat', 'swap', [['uncons'], 'c', 'repeat', 'drop'], 'dip']
            // // },
            // // 'case': {
-           // //     expects: [{ desc: 'key', ofType: 'word' }, { desc: 'a', ofType: 'record' }], effects: [-2], tests: [], desc: 'apply a matching case',
+           // //     expects: [{ desc: 'key', ofType: 'word' }, { desc: 'a', ofType: 'record' }], effects: [-2], tests: [], desc: 'play a matching case',
            // //     definition: function (s: Json[], pl: PL) {
-           // //         const case_record = s.pop();
-           // //         let key = s.pop();
+           // //         const case_record = s?.pop();
+           // //         let key = s?.pop();
            // //         if (key === " ") {
            // //             key = "' '";
            // //         }
@@ -6010,7 +6585,7 @@
            // //         'setup-filter': [[]],
            // //         'process-filter': [
            // //             ["size"], "dip2", "rolldown", 0, ">",
-           // //             ["rotate", "pop", "rolldown", ["dup"], "dip", "dup", ["apply"], "dip", "swap",
+           // //             ["rotate", "pop", "rolldown", ["dup"], "dip", "dup", ["play"], "dip", "swap",
            // //                 [["swap"], "dip2", ["prepend"], "dip"],
            // //                 [["swap"], "dip2", ["drop"], "dip"], "if-else", "swap", "process-filter"],
            // //             [["drop", "drop"], "dip"], "if-else"]
@@ -6022,7 +6597,7 @@
            // //     'local-words': {
            // //         'more?': ['rolldown', 'size', 0, '>', ['rollup'], 'dip'],
            // //         'process-reduce': ['more?', ['reduce-step', 'process-reduce'], 'if'],
-           // //         'reduce-step': [['pop'], 'dip2', 'dup', [['swap'], 'dip', 'apply'], 'dip'],
+           // //         'reduce-step': [['pop'], 'dip2', 'dup', [['swap'], 'dip', 'play'], 'dip'],
            // //         'teardown-reduce': ['drop', ['drop'], 'dip'],
            // //     },
            // //     'definition': ['process-reduce', 'teardown-reduce']
@@ -6039,15 +6614,15 @@
            // non-FP section (candidate for refactor)
            var next_pl = __spreadArrays$1(pl);
            var next_wd = {};
-           var def_i = findIndex(function (word) { return word === 'def'; }, next_pl);
+           var def_i = findIndex(function (word) { return word === 'compose'; }, next_pl);
            while (def_i !== -1) {
                if (def_i >= 2) {
                    var word = toPLOrNull(next_pl[def_i - 2]);
                    var key = toStringOrNull(head(toArrOrNull(next_pl[def_i - 1])));
                    next_pl.splice(def_i - 2, 3); // splice is particularly mutant
-                   next_wd = defineWord(next_wd, key, { "def": word });
+                   next_wd = defineWord(next_wd, key, { "compose": word });
                }
-               def_i = findIndex(function (word) { return word === 'def'; }, next_pl);
+               def_i = findIndex(function (word) { return word === 'compose'; }, next_pl);
            }
            return [next_pl, mergeRight(coreWords, next_wd)];
        };
@@ -6061,9 +6636,9 @@
            var wd_in, internalCallStack, _a, pl, wd, s, _b, w, maxCycles, cycles, wds, _d, plist, _f;
            var _g, _h;
            if (opt === void 0) { opt = { logLevel: 0, yieldOnId: false }; }
-           var _j;
-           return __generator(this, function (_k) {
-               switch (_k.label) {
+           var _j, _k, _l, _m, _o;
+           return __generator(this, function (_p) {
+               switch (_p.label) {
                    case 0:
                        wd_in = opt.wd ? opt.wd : coreWords;
                        internalCallStack = [];
@@ -6072,17 +6647,19 @@
                        if (!((_j = opt) === null || _j === void 0 ? void 0 : _j.logLevel)) return [3 /*break*/, 2];
                        return [4 /*yield*/, { stack: s, prog: pl, active: true }];
                    case 1:
-                       _b = _k.sent();
+                       _b = _p.sent();
                        return [3 /*break*/, 3];
                    case 2:
                        _b = null;
-                       _k.label = 3;
+                       _p.label = 3;
                    case 3:
                        maxCycles = opt.maxCycles || 1000000;
                        cycles = 0;
-                       _k.label = 4;
+                       _p.label = 4;
                    case 4:
-                       if (!(cycles < maxCycles && internalCallStack.length < 1000 && (w = pl.shift()) !== undefined)) return [3 /*break*/, 17];
+                       if (!(cycles < maxCycles && internalCallStack.length < 1000
+                           && (w = pl.shift()) !== undefined
+                           && !(((_k = s) === null || _k === void 0 ? void 0 : _k.length) === 1 && s[0] === null))) return [3 /*break*/, 17];
                        cycles += 1;
                        wds = is(String, w) ? wd[w] : null;
                        if (!wds) return [3 /*break*/, 10];
@@ -6090,25 +6667,31 @@
                        if (!debugLevel(internalCallStack, opt.logLevel)) return [3 /*break*/, 6];
                        return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays$1(internalCallStack) }];
                    case 5:
-                       _d = _k.sent();
+                       _d = _p.sent();
                        return [3 /*break*/, 7];
                    case 6:
                        _d = null;
-                       _k.label = 7;
+                       _p.label = 7;
                    case 7:
                        return [3 /*break*/, 9];
                    case 8:
-                       _k.label = 9;
+                       _p.label = 9;
                    case 9:
-                       if (typeof wds.def === 'function') {
-                           _g = wds.def(s, pl), s = _g[0], _h = _g[1], pl = _h === void 0 ? pl : _h;
+                       if (typeof wds.compose === 'function') {
+                           _g = wds.compose(s, pl), s = _g[0], _h = _g[1], pl = _h === void 0 ? pl : _h;
+                           // if(r.isNil(s_ret)) {
+                           //   cycles = maxCycles;
+                           // }
+                           // else {
+                           //   s = s_ret;
+                           // }
                        }
                        else {
                            if (w === "popInternalCallStack") {
                                internalCallStack.pop();
                            }
                            else {
-                               plist = toPLOrNull(wds.def);
+                               plist = toPLOrNull(wds.compose);
                                if (plist) {
                                    internalCallStack.push(toStringOrNull(w));
                                    pl = __spreadArrays$1(plist, ["popInternalCallStack"], pl);
@@ -6119,36 +6702,43 @@
                    case 10:
                        if (!(w !== undefined)) return [3 /*break*/, 16];
                        if (is(Array, w)) {
-                           s.push([].concat(w));
+                           (_l = s) === null || _l === void 0 ? void 0 : _l.push([].concat(w));
                        }
                        else {
-                           s.push(w);
+                           (_m = s) === null || _m === void 0 ? void 0 : _m.push(w);
                        }
                        if (!(opt.logLevel && opt.yieldOnId)) return [3 /*break*/, 14];
                        if (!(debugLevel(internalCallStack, opt.logLevel))) return [3 /*break*/, 12];
                        return [4 /*yield*/, { stack: s, prog: debugCleanPL([w].concat(pl)), active: true, internalCallStack: __spreadArrays$1(internalCallStack) }];
                    case 11:
-                       _f = _k.sent();
+                       _f = _p.sent();
                        return [3 /*break*/, 13];
                    case 12:
                        _f = null;
-                       _k.label = 13;
+                       _p.label = 13;
                    case 13:
                        return [3 /*break*/, 15];
                    case 14:
-                       _k.label = 15;
+                       _p.label = 15;
                    case 15:
-                       _k.label = 16;
+                       _p.label = 16;
                    case 16: return [3 /*break*/, 4];
                    case 17:
-                       if (!(cycles >= maxCycles || internalCallStack.length >= 1000)) return [3 /*break*/, 19];
-                       return [4 /*yield*/, { stack: s, prog: pl, active: false, internalCallStack: __spreadArrays$1(internalCallStack), error: "maxCycles or callStack size exceeded: this may be an infinite loop" }];
+                       if (!(((_o = s) === null || _o === void 0 ? void 0 : _o.length) === 1 && s[0] === null)) return [3 /*break*/, 19];
+                       console.log("s has null");
+                       return [4 /*yield*/, { stack: [], prog: pl, active: false, internalCallStack: __spreadArrays$1(internalCallStack), error: "a word did not find required data on the stack" }];
                    case 18:
-                       _k.sent();
-                       _k.label = 19;
-                   case 19: return [4 /*yield*/, { stack: s, prog: pl, active: false }];
+                       _p.sent();
+                       _p.label = 19;
+                   case 19:
+                       if (!(cycles >= maxCycles || internalCallStack.length >= 1000)) return [3 /*break*/, 21];
+                       return [4 /*yield*/, { stack: s, prog: pl, active: false, internalCallStack: __spreadArrays$1(internalCallStack), error: "maxCycles or callStack size exceeded: this may be an infinite loop" }];
                    case 20:
-                       _k.sent();
+                       _p.sent();
+                       _p.label = 21;
+                   case 21: return [4 /*yield*/, { stack: s, prog: pl, active: false }];
+                   case 22:
+                       _p.sent();
                        return [2 /*return*/];
                }
            });
@@ -6169,18 +6759,26 @@
            interp = interpreter$1(pounceProgram, { logLevel });
            window.requestAnimationFrame(step);
        }
+       const STACK_STR_MAX = 54;
+       const PROG_STR_MAX = 57;
+
        const step = () => {
            let result = interp.next();
            if (!result || !result.value) {
                return;
            }
-
            let newStEle = document.createElement('div');
-           newStEle.innerText = result.value.stack.length ? unParse(result.value.stack) : "/empty stack/";
+           const stackText = result.value.stack.length ? unParse(result.value.stack) : "/empty stack/";
+           newStEle.innerHTML = stackText.length > STACK_STR_MAX ? 
+           `<dfn><abbr title="${stackText.substr(0, stackText.length-STACK_STR_MAX+3)}">...</abbr></dfn>${stackText.substr((STACK_STR_MAX-3) * -1)}`: stackText;
            stackEle.appendChild(newStEle);
 
            let newPrEle = document.createElement('div');
-           newPrEle.innerText = unParse(result.value.prog);
+           const progText = unParse(result.value.prog);
+
+           newPrEle.innerHTML = progText.length > PROG_STR_MAX ? 
+           `${progText.substr(0, PROG_STR_MAX-3)}<dfn><abbr title="${progText.substr((progText.length-PROG_STR_MAX+3) * -1)}">...</abbr></dfn>`: progText;
+
            programEle.appendChild(newPrEle);
 
            if (result.value.active) {

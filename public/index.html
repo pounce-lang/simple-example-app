@@ -19,10 +19,10 @@
                 <option value="5 3 + 2 * 4 / 1 -">Math, postfix notation</option>
                 <option value="'the inverse of' 3 2 dup2 [/] dip2 swap / 'is' swap">Stack shuffeling</option>
                 <option value=" 22 add-one 
- [1 +] [add-one] def">Word definition (add-one) </option>
-                <option value="[dup 1 - dup 0 > [[*] dip fac] [drop drop] if-else] [fac] def 
+ [1 +] [add-one] compose">Word definition (add-one) </option>
+                <option value="[dup 1 - dup 0 > [[*] dip fac] [drop drop] if-else] [fac] compose 
 1 5 fac">factorial, by word
-                    def</option>
+                    compose</option>
                 <option value="5 [dup 0 ==] [1 +] [dup 1 -] [*] linrec">factorial, by linrec</option>
                 <option value="0 1 [dup2 +] 16 times">Fibonachi Numbers</option>
                 <option value="[0] # <- this is a seed for the sequence
@@ -30,19 +30,19 @@
 [uncons swap 0 = [1 [] cons cons] [0 1 [] cons cons cons] if-else concat] 
 [] linrec">
                     Fibonachi sequence</option>
-                <option value="9 2 8 [a b c] [a b * c - b /] apply-with">Named stack positions</option>
+                <option value="9 2 8 [a b c] [a b * c - b /] pounce">Named stack positions</option>
                 <option value="
-2 3 4 [m b x] [m x * b +] apply-with">Calculate y = mx + b </option>
+2 3 4 [m b x] [m x * b +] pounce">Calculate y = mx + b </option>
                 <option value="[6 3 8 4 5 7 2 9 1] # <- let's sort this list
-[size 1 <=] [] [uncons split<] [concat] binrec">Quick sort, using
+[size 1 <=] [] [uncons [>] split] [concat] binrec">Quick sort, using
                     binrec</option>
 
-                <option value="[2 = [1 +] [dup 2 + 3 % 0 == [4 +] [2 +] if-else] if-else] [prime-inc] def
-[2 [] [[p n fs] [p n fs p 1 <=] apply-with]
-[[p n fs] [fs] apply-with]
-[[p n fs] [p n fs p n % 0 ==] apply-with 
-[[p n fs] [p n / n n fs cons] apply-with] [[p n fs] [p n prime-inc fs] apply-with] if-else]
-[] linrec] [prime-factors] def
+                <option value="[2 = [1 +] [dup 2 + 3 % 0 == [4 +] [2 +] if-else] if-else] [prime-inc] compose
+[2 [] [[p n fs] [p n fs p 1 <=] pounce]
+[[p n fs] [fs] pounce]
+[[p n fs] [p n fs p n % 0 ==] pounce 
+[[p n fs] [p n / n n fs cons] pounce] [[p n fs] [p n prime-inc fs] pounce] if-else]
+[] linrec] [prime-factors] compose
 210 prime-factors
 ">prime factors</option>
 <option value="[-1 0 1 98] [1 +] map">map</option>
@@ -51,7 +51,7 @@
 <option value="[-1 0 1 98] 0 [+] reduce">reduce</option>
 <option value="[2 3 4] [3 3 3] [1 5 5]
 
-[[k] [stack-copy [uncons drop k ==] filter] apply-with] [filterOn] def
+[[k] [stack-copy [uncons drop k ==] filter] pounce] [filterOn] compose
 3 filterOn">stack-copy &amp; filter</option>
 
             </select>
